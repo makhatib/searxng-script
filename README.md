@@ -25,21 +25,21 @@
 ### 1. استنساخ المستودع:
 
 ```bash
-git clone https://github.com/<your-repo>.git
-cd searxng-installer
+git clone https://github.com/makhatib/searxng-script.git
+cd searxng-script
 ```
 
 ### 2. جعل السكربت قابلاً للتنفيذ وتشغيله:
 
 ```bash
-chmod +x setup.sh
-sudo ./setup.sh
+chmod +x malkhatib-searxng.sh
+sudo ./malkhatib-searxng.sh
 ```
 
 ### 3. اتبع التعليمات على الشاشة:
 
-- أدخل اسم النطاق (أو اتركه `localhost`).
-- اختر المنفذ، عدد العمال والخيوط.
+- أدخل اسم النطاق .
+- اختر المنفذ، عدد العمال المسارات.
 
 🟢 بعد ثوانٍ ستكون نسختك الخاصة من SearXNG جاهزة!
 
