@@ -5,7 +5,7 @@ set -e
 echo "⚡️ Setting up your private SearXNG instance ⚡️"
 
 # Check Docker installation
-command -v docker >/dev/null 2>&1 || { echo >&2 "Docker is not installed. Please install Docker first."; exit 1;}
+command -v docker >/dev/null 2>&1 || { echo >&2 "Docker is not installed. Please install Docker first."; exit 1; }
 
 # Get user input
 read -rp "Enter your domain (e.g., search.example.com) [leave empty for localhost]: " domain
@@ -19,6 +19,15 @@ workers=${workers:-4}
 
 read -rp "Number of UWSGI Threads [default 4]: " threads
 threads=${threads:-4}
+
+# Determine base_url and query_url
+if [ "$domain" = "localhost" ]; then
+    base_url="http://localhost/"
+    query_url="http://localhost:$port/search?q=<query>"
+else
+    base_url="https://$domain/"
+    query_url="http://$domain/search?q=<query>"
+fi
 
 # Create .env
 cat <<EOF > .env
@@ -61,10 +70,15 @@ services:
     volumes:
       - ./searxng:/etc/searxng:rw
     environment:
-      - SEARXNG_BASE_URL=https://${SEARXNG_HOSTNAME:-localhost}/
-      - UWSGI_WORKERS=${SEARXNG_UWSGI_WORKERS:-4}
-      - UWSGI_THREADS=${SEARXNG_UWSGI_THREADS:-4}
+      - SEARXNG_BASE_URL=$base_url
+      - UWSGI_WORKERS=$workers
+      - UWSGI_THREADS=$threads
       - SEARXNG_REDIS_URL=redis://redis:6379/0
+      - ENABLE_RAG_WEB_SEARCH=True
+      - RAG_WEB_SEARCH_ENGINE=searxng
+      - RAG_WEB_SEARCH_RESULT_COUNT=3
+      - RAG_WEB_SEARCH_CONCURRENT_REQUESTS=10
+      - SEARXNG_QUERY_URL=$query_url
     logging:
       driver: "json-file"
       options:
@@ -90,7 +104,6 @@ sleep 3
 # Check if container is running
 if docker compose ps | grep -q "searxng.*Up"; then
     local_ip=$(hostname -I | awk '{print $1}')
-
     if [ "$domain" = "localhost" ]; then
         user_url="http://$local_ip:$port"
     else
@@ -98,7 +111,7 @@ if docker compose ps | grep -q "searxng.*Up"; then
     fi
 
     echo "✅ SearXNG is up and running successfully!"
-    echo 
+    echo
     echo "🌐 URLs to access your instance:"
     echo "➜ Final URL (user): $user_url"
     echo "➜ Direct local access: http://$local_ip:$port"
