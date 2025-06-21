@@ -23,10 +23,10 @@ threads=${threads:-4}
 # Determine base_url and query_url
 if [ "$domain" = "localhost" ]; then
     base_url="http://localhost/"
-    query_url="http://localhost:$port/search?q=<query>"
+    query_url="https://localhost:$port/search?q=<query>"
 else
     base_url="https://$domain/"
-    query_url="http://$domain/search?q=<query>"
+    query_url="https://$domain/search?q=<query>"
 fi
 
 # Create .env
